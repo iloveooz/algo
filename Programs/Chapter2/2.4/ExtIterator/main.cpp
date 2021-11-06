@@ -1,13 +1,13 @@
 /***************************************************************
-*  Структуры и алгоритмы обработки данных:                     *
-*  объектно-ориентированный подход и реализация на C++         *
-*      Глава 2. Базовые алгоритмы                              *
-*          2.4. Итераторы                                      *
+*  РЎС‚СЂСѓРєС‚СѓСЂС‹ Рё Р°Р»РіРѕСЂРёС‚РјС‹ РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С…:                     *
+*  РѕР±СЉРµРєС‚РЅРѕ-РѕСЂРёРµРЅС‚РёСЂРѕРІР°РЅРЅС‹Р№ РїРѕРґС…РѕРґ Рё СЂРµР°Р»РёР·Р°С†РёСЏ РЅР° C++         *
+*      Р“Р»Р°РІР° 2. Р‘Р°Р·РѕРІС‹Рµ Р°Р»РіРѕСЂРёС‚РјС‹                              *
+*          2.4. РС‚РµСЂР°С‚РѕСЂС‹                                      *
 *                                                              *
-*  Автор       : А. Кубенский                                  *
-*  Файл        : main.cpp                                      *
-*  Описание    : Внешние итераторы списка целых:               *
-*                тестирующая функция                           *
+*  РђРІС‚РѕСЂ       : Рђ. РљСѓР±РµРЅСЃРєРёР№                                  *
+*  Р¤Р°Р№Р»        : main.cpp                                      *
+*  РћРїРёСЃР°РЅРёРµ    : Р’РЅРµС€РЅРёРµ РёС‚РµСЂР°С‚РѕСЂС‹ СЃРїРёСЃРєР° С†РµР»С‹С…:               *
+*                С‚РµСЃС‚РёСЂСѓСЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ                           *
 ***************************************************************/
 
 #include <iostream>
@@ -16,7 +16,7 @@
 
 using namespace std;
 
-// Распечатка всех элементов списка
+// Р Р°СЃРїРµС‡Р°С‚РєР° РІСЃРµС… СЌР»РµРјРµРЅС‚РѕРІ СЃРїРёСЃРєР°
 void printList(IntList & ls) {
   cout << "[";
   Iterator<int> *i = ls.iterator();
@@ -27,7 +27,7 @@ void printList(IntList & ls) {
   delete i;
 }
 
-// Функция для подсчета среднего арифметического элементов списка
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїРѕРґСЃС‡РµС‚Р° СЃСЂРµРґРЅРµРіРѕ Р°СЂРёС„РјРµС‚РёС‡РµСЃРєРѕРіРѕ СЌР»РµРјРµРЅС‚РѕРІ СЃРїРёСЃРєР°
 double average(IntList & list) {
   double sum = 0, count = 0;
   Iterator<int> *i = list.iterator();
@@ -39,7 +39,7 @@ double average(IntList & list) {
   return sum / count;
 }
 
-// Подсчет количества элементов списка, равных заданному
+// РџРѕРґСЃС‡РµС‚ РєРѕР»РёС‡РµСЃС‚РІР° СЌР»РµРјРµРЅС‚РѕРІ СЃРїРёСЃРєР°, СЂР°РІРЅС‹С… Р·Р°РґР°РЅРЅРѕРјСѓ
 int countElements(IntList & ls, const int value) {
   int count = 0;
   Iterator<int> *i = ls.iterator();
@@ -50,7 +50,7 @@ int countElements(IntList & ls, const int value) {
   return count;
 }
 
-// Подсчет максимального количества совпадающих элементов списка
+// РџРѕРґСЃС‡РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° СЃРѕРІРїР°РґР°СЋС‰РёС… СЌР»РµРјРµРЅС‚РѕРІ СЃРїРёСЃРєР°
 int maxEqualElements(IntList & ls) {
   int max = 0;
   Iterator<int> *i = ls.iterator();
@@ -62,7 +62,7 @@ int maxEqualElements(IntList & ls) {
   return max;
 }
 
-// Удаление из списка всех элементов, равных заданному
+// РЈРґР°Р»РµРЅРёРµ РёР· СЃРїРёСЃРєР° РІСЃРµС… СЌР»РµРјРµРЅС‚РѕРІ, СЂР°РІРЅС‹С… Р·Р°РґР°РЅРЅРѕРјСѓ
 void removeElements(IntList & ls, const int el) {
   Iterator<int> *i = ls.iterator();
   while (i->hasMoreElements()) {
@@ -74,7 +74,7 @@ void removeElements(IntList & ls, const int el) {
   delete i;
 }
 
-// Вставка нового значения в упорядоченный список
+// Р’СЃС‚Р°РІРєР° РЅРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РІ СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹Р№ СЃРїРёСЃРѕРє
 void insert(IntList & ls, const int val) {
   IntList::MyIterator *i = ls.iterator();
   for (; i->hasMoreElements() && i->getCurrent() < val; i->nextElement()) ;
@@ -85,7 +85,7 @@ void insert(IntList & ls, const int val) {
   delete i;
 }
 
-// Сортировка списка пузырьком
+// РЎРѕСЂС‚РёСЂРѕРІРєР° СЃРїРёСЃРєР° РїСѓР·С‹СЂСЊРєРѕРј
 IntList * bubbleSort(IntList & ls) {
   IntList * newList = new IntList();
   IntList::MyIterator *i = ls.iterator();
@@ -97,8 +97,8 @@ IntList * bubbleSort(IntList & ls) {
 }
 
 int main() {
-  IntList list;         // Создан новый пустой список
-  // Добавляем в список элементы
+  IntList list;         // РЎРѕР·РґР°РЅ РЅРѕРІС‹Р№ РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє
+  // Р”РѕР±Р°РІР»СЏРµРј РІ СЃРїРёСЃРѕРє СЌР»РµРјРµРЅС‚С‹
   list.addLast(5);
   list.addLast(2);
   list.addLast(8);
@@ -110,18 +110,18 @@ int main() {
   cout << "The following elements are entered into the list:" << endl;
   printList(list);
 
-  // 1. Проверяем вычисление среднего значения с помощью внешнего итератора
+  // 1. РџСЂРѕРІРµСЂСЏРµРј РІС‹С‡РёСЃР»РµРЅРёРµ СЃСЂРµРґРЅРµРіРѕ Р·РЅР°С‡РµРЅРёСЏ СЃ РїРѕРјРѕС‰СЊСЋ РІРЅРµС€РЅРµРіРѕ РёС‚РµСЂР°С‚РѕСЂР°
   cout << "Average of the list elements: " << average(list) << endl;
 
-  // 2. Проверяем вычисление максимального количества совпадающих элементов
+  // 2. РџСЂРѕРІРµСЂСЏРµРј РІС‹С‡РёСЃР»РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° СЃРѕРІРїР°РґР°СЋС‰РёС… СЌР»РµРјРµРЅС‚РѕРІ
   cout << "Maximum of the equal list elements: " << maxEqualElements(list) << endl;
 
-  // 3. Удаляем элемент 8
+  // 3. РЈРґР°Р»СЏРµРј СЌР»РµРјРµРЅС‚ 8
   removeElements(list, 8);
   cout << "List after removing the '8' values from the list:" << endl;
   printList(list);
 
-  // 4. Сортировка списка
+  // 4. РЎРѕСЂС‚РёСЂРѕРІРєР° СЃРїРёСЃРєР°
   IntList * sortedList = bubbleSort(list);
   cout << "The list after the sorting:" << endl;
   printList(*sortedList);

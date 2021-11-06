@@ -1,13 +1,13 @@
 /***************************************************************
-*  Структуры и алгоритмы обработки данных:                     *
-*  объектно-ориентированный подход и реализация на C++         *
-*      Глава 5. Алгоритмы распределения памяти                 *
-*          5.3. Распределение памяти блоками переменной длины  *
+*  РЎС‚СЂСѓРєС‚СѓСЂС‹ Рё Р°Р»РіРѕСЂРёС‚РјС‹ РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С…:                     *
+*  РѕР±СЉРµРєС‚РЅРѕ-РѕСЂРёРµРЅС‚РёСЂРѕРІР°РЅРЅС‹Р№ РїРѕРґС…РѕРґ Рё СЂРµР°Р»РёР·Р°С†РёСЏ РЅР° C++         *
+*      Р“Р»Р°РІР° 5. РђР»РіРѕСЂРёС‚РјС‹ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё                 *
+*          5.3. Р Р°СЃРїСЂРµРґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё Р±Р»РѕРєР°РјРё РїРµСЂРµРјРµРЅРЅРѕР№ РґР»РёРЅС‹  *
 *                                                              *
-*  Автор    : А.Кубенский                                      *
-*  Файл     : boardmarkers.cpp                                 *
-*  Описание : Реализация системы распределения и управления    *
-*             блоками памяти методом граничных маркеров        *
+*  РђРІС‚РѕСЂ    : Рђ.РљСѓР±РµРЅСЃРєРёР№                                      *
+*  Р¤Р°Р№Р»     : boardmarkers.cpp                                 *
+*  РћРїРёСЃР°РЅРёРµ : Р РµР°Р»РёР·Р°С†РёСЏ СЃРёСЃС‚РµРјС‹ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ Рё СѓРїСЂР°РІР»РµРЅРёСЏ    *
+*             Р±Р»РѕРєР°РјРё РїР°РјСЏС‚Рё РјРµС‚РѕРґРѕРј РіСЂР°РЅРёС‡РЅС‹С… РјР°СЂРєРµСЂРѕРІ        *
 ***************************************************************/
 
 #include <iostream>
@@ -17,56 +17,56 @@ using namespace std;
 #include "boardmarkers.h"
 
 void * BoardMarkersMemory::get(size_t sz) {
-  // 1. Поиск свободного блока подходящей длины
+  // 1. РџРѕРёСЃРє СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР° РїРѕРґС…РѕРґСЏС‰РµР№ РґР»РёРЅС‹
   if (freePtr == NULL) throw NoMoreMemoryException();
   char * current = freePtr,
        * last = freePtr,
        * found = NULL;
   do {
     if (*(size_t*)&current[MARKER_SIZE] >= sz + SIZE_SIZE + 2*MARKER_SIZE) {
-      found = current;    // свободный блок подходящей длины найден
+      found = current;    // СЃРІРѕР±РѕРґРЅС‹Р№ Р±Р»РѕРє РїРѕРґС…РѕРґСЏС‰РµР№ РґР»РёРЅС‹ РЅР°Р№РґРµРЅ
     } else {
-      // переход к следующему блоку
+      // РїРµСЂРµС…РѕРґ Рє СЃР»РµРґСѓСЋС‰РµРјСѓ Р±Р»РѕРєСѓ
       current = *(char**)&current[MARKER_SIZE + SIZE_SIZE + PTR_SIZE];
     }
   } while (found == NULL && current != last);
-  if (found == NULL) { // нет свободного блока памяти нужного размера!
+  if (found == NULL) { // РЅРµС‚ СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР° РїР°РјСЏС‚Рё РЅСѓР¶РЅРѕРіРѕ СЂР°Р·РјРµСЂР°!
     throw NoMoreMemoryException();
   }
 
-  // 2. Разметка блока
+  // 2. Р Р°Р·РјРµС‚РєР° Р±Р»РѕРєР°
   size_t * pLength = (size_t*)&found[MARKER_SIZE];
   char **  pPred   = (char**)&found[MARKER_SIZE + SIZE_SIZE];
   char **  pNext   = (char**)&found[MARKER_SIZE + SIZE_SIZE + PTR_SIZE];
   unsigned char * pEndMarker = (unsigned char *)&found[*pLength - MARKER_SIZE];
 
-  // 3. Если блок не слишком велик, он выделяется целиком
+  // 3. Р•СЃР»Рё Р±Р»РѕРє РЅРµ СЃР»РёС€РєРѕРј РІРµР»РёРє, РѕРЅ РІС‹РґРµР»СЏРµС‚СЃСЏ С†РµР»РёРєРѕРј
   if (*pLength < sz + 3*SIZE_SIZE + 4*MARKER_SIZE + 2*PTR_SIZE) {
-    if (*pNext == found) {  // Это был последний свободный блок
+    if (*pNext == found) {  // Р­С‚Рѕ Р±С‹Р» РїРѕСЃР»РµРґРЅРёР№ СЃРІРѕР±РѕРґРЅС‹Р№ Р±Р»РѕРє
       freePtr = NULL;
-    } else {                // Исключаем блок из списка
+    } else {                // РСЃРєР»СЋС‡Р°РµРј Р±Р»РѕРє РёР· СЃРїРёСЃРєР°
       *(char**)(*pPred + MARKER_SIZE + SIZE_SIZE+PTR_SIZE) = freePtr = *pNext;
       *(char**)(*pNext + MARKER_SIZE + SIZE_SIZE) = *pPred;
     }
-    // Маркируем блок как занятый
+    // РњР°СЂРєРёСЂСѓРµРј Р±Р»РѕРє РєР°Рє Р·Р°РЅСЏС‚С‹Р№
     *found = *pEndMarker = BUSY_MARKER;
     return found + MARKER_SIZE + SIZE_SIZE;
 
-  // 4. Если блок достаточно велик, то он делится на два
+  // 4. Р•СЃР»Рё Р±Р»РѕРє РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РІРµР»РёРє, С‚Рѕ РѕРЅ РґРµР»РёС‚СЃСЏ РЅР° РґРІР°
   } else {
-    // вычисление новой длины свободного блока:
+    // РІС‹С‡РёСЃР»РµРЅРёРµ РЅРѕРІРѕР№ РґР»РёРЅС‹ СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР°:
     *pLength -= sz + SIZE_SIZE + 2*MARKER_SIZE;
-    // дополнительная разметка
+    // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ СЂР°Р·РјРµС‚РєР°
     char * busyBlock = found + *pLength;
     size_t* busyLength = (size_t*)(busyBlock + MARKER_SIZE);
     unsigned char * pFreeEndMarker = (unsigned char *)(busyBlock - MARKER_SIZE);
     size_t * pEndLength = (size_t*)((char*)pFreeEndMarker - PTR_SIZE);
-    // формирование верхней границы нового блока:
+    // С„РѕСЂРјРёСЂРѕРІР°РЅРёРµ РІРµСЂС…РЅРµР№ РіСЂР°РЅРёС†С‹ РЅРѕРІРѕРіРѕ Р±Р»РѕРєР°:
     *pEndLength = *pLength;
     *pFreeEndMarker = FREE_MARKER;
-    // Переносим указатель списка свободных блоков
+    // РџРµСЂРµРЅРѕСЃРёРј СѓРєР°Р·Р°С‚РµР»СЊ СЃРїРёСЃРєР° СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
     freePtr = found;
-    // окончательное формирование выдаваемого блока и выдача результата:
+    // РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕРµ С„РѕСЂРјРёСЂРѕРІР°РЅРёРµ РІС‹РґР°РІР°РµРјРѕРіРѕ Р±Р»РѕРєР° Рё РІС‹РґР°С‡Р° СЂРµР·СѓР»СЊС‚Р°С‚Р°:
     *busyBlock = *pEndMarker = BUSY_MARKER;
     *busyLength = sz + SIZE_SIZE + 2*MARKER_SIZE;
     return busyBlock + MARKER_SIZE + SIZE_SIZE;
@@ -74,26 +74,26 @@ void * BoardMarkersMemory::get(size_t sz) {
 }
 
 void BoardMarkersMemory::release(void * ptr) {
-  // Сначала вычисляем адрес возвращаемого блока
+  // РЎРЅР°С‡Р°Р»Р° РІС‹С‡РёСЃР»СЏРµРј Р°РґСЂРµСЃ РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р±Р»РѕРєР°
   char * releaseBlock = (char*)ptr - SIZE_SIZE - MARKER_SIZE;
-  // 1. Проверяем соседние блоки и вычисляем их адреса, если это
-  //    свободные блоки. Отсутствие свободного блока помечается
-  //    пустой ссылкой.
+  // 1. РџСЂРѕРІРµСЂСЏРµРј СЃРѕСЃРµРґРЅРёРµ Р±Р»РѕРєРё Рё РІС‹С‡РёСЃР»СЏРµРј РёС… Р°РґСЂРµСЃР°, РµСЃР»Рё СЌС‚Рѕ
+  //    СЃРІРѕР±РѕРґРЅС‹Рµ Р±Р»РѕРєРё. РћС‚СЃСѓС‚СЃС‚РІРёРµ СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР° РїРѕРјРµС‡Р°РµС‚СЃСЏ
+  //    РїСѓСЃС‚РѕР№ СЃСЃС‹Р»РєРѕР№.
   char * firstAddr = releaseBlock > buffer && ((unsigned char *)releaseBlock)[-MARKER_SIZE] == FREE_MARKER ?
                      releaseBlock - *(size_t*)&releaseBlock[-MARKER_SIZE - SIZE_SIZE] :
                      NULL,
        * secondAddr = releaseBlock + *(size_t*)&releaseBlock[MARKER_SIZE];
   if (secondAddr == buffer+size || *(unsigned char *)secondAddr != FREE_MARKER) secondAddr = NULL;
 
-  // 2. Рассматриваем три случая:
-  //    1) возвращаемый блок удается соединить с обоими соседними блоками;
-  //    2) возвращаемый блок удается соединить с одним из соседних блоков;
-  //    3) ни одно из соединений невозможно.
+  // 2. Р Р°СЃСЃРјР°С‚СЂРёРІР°РµРј С‚СЂРё СЃР»СѓС‡Р°СЏ:
+  //    1) РІРѕР·РІСЂР°С‰Р°РµРјС‹Р№ Р±Р»РѕРє СѓРґР°РµС‚СЃСЏ СЃРѕРµРґРёРЅРёС‚СЊ СЃ РѕР±РѕРёРјРё СЃРѕСЃРµРґРЅРёРјРё Р±Р»РѕРєР°РјРё;
+  //    2) РІРѕР·РІСЂР°С‰Р°РµРјС‹Р№ Р±Р»РѕРє СѓРґР°РµС‚СЃСЏ СЃРѕРµРґРёРЅРёС‚СЊ СЃ РѕРґРЅРёРј РёР· СЃРѕСЃРµРґРЅРёС… Р±Р»РѕРєРѕРІ;
+  //    3) РЅРё РѕРґРЅРѕ РёР· СЃРѕРµРґРёРЅРµРЅРёР№ РЅРµРІРѕР·РјРѕР¶РЅРѕ.
   if (firstAddr != NULL) {
-    // Первый из блоков примыкает к возвращаемому
+    // РџРµСЂРІС‹Р№ РёР· Р±Р»РѕРєРѕРІ РїСЂРёРјС‹РєР°РµС‚ Рє РІРѕР·РІСЂР°С‰Р°РµРјРѕРјСѓ
     if (secondAddr != NULL) {
-      // Второй блок тоже примыкает к возвращаемому - случай (1).
-      // Второй блок удаляем из системы, а первый расширяем:
+      // Р’С‚РѕСЂРѕР№ Р±Р»РѕРє С‚РѕР¶Рµ РїСЂРёРјС‹РєР°РµС‚ Рє РІРѕР·РІСЂР°С‰Р°РµРјРѕРјСѓ - СЃР»СѓС‡Р°Р№ (1).
+      // Р’С‚РѕСЂРѕР№ Р±Р»РѕРє СѓРґР°Р»СЏРµРј РёР· СЃРёСЃС‚РµРјС‹, Р° РїРµСЂРІС‹Р№ СЂР°СЃС€РёСЂСЏРµРј:
       size_t newLen = (*(size_t*)&firstAddr[MARKER_SIZE] += *(size_t*)&releaseBlock[MARKER_SIZE] + *(size_t*)&secondAddr[MARKER_SIZE]);
       *(size_t*)&firstAddr[MARKER_SIZE] = newLen;
       *(size_t*)&firstAddr[newLen - MARKER_SIZE - SIZE_SIZE] = newLen;
@@ -102,14 +102,14 @@ void BoardMarkersMemory::release(void * ptr) {
       *(char**)&predBlock[MARKER_SIZE + SIZE_SIZE + PTR_SIZE] = nextBlock;
       *(char**)&nextBlock[MARKER_SIZE + SIZE_SIZE] = predBlock;
     } else {
-      // Случай (2), первый блок расширяется
+      // РЎР»СѓС‡Р°Р№ (2), РїРµСЂРІС‹Р№ Р±Р»РѕРє СЂР°СЃС€РёСЂСЏРµС‚СЃСЏ
       size_t newLen = *(size_t*)&firstAddr[MARKER_SIZE] + *(size_t*)&releaseBlock[MARKER_SIZE];
       *(size_t*)&firstAddr[MARKER_SIZE] = newLen;
       firstAddr[newLen - MARKER_SIZE] = FREE_MARKER;
       *(size_t*)&firstAddr[newLen - MARKER_SIZE - SIZE_SIZE] = newLen;
     }
   } else if (secondAddr != NULL) {
-    // Второй блок - единственный из примыкающих к возвращаемому - случай (2)
+    // Р’С‚РѕСЂРѕР№ Р±Р»РѕРє - РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№ РёР· РїСЂРёРјС‹РєР°СЋС‰РёС… Рє РІРѕР·РІСЂР°С‰Р°РµРјРѕРјСѓ - СЃР»СѓС‡Р°Р№ (2)
     *releaseBlock = FREE_MARKER;
     size_t newLen = *(size_t*)&releaseBlock[MARKER_SIZE] + *(size_t*)&secondAddr[MARKER_SIZE];
     *(size_t*)&releaseBlock[MARKER_SIZE] = newLen;
@@ -121,7 +121,7 @@ void BoardMarkersMemory::release(void * ptr) {
     *(char**)&releaseBlock[MARKER_SIZE + SIZE_SIZE] = predBlock;
     *(char**)&releaseBlock[MARKER_SIZE + SIZE_SIZE + PTR_SIZE] = nextBlock;
   } else {
-    // Случай (3) - в системе появляется новый свободный блок.
+    // РЎР»СѓС‡Р°Р№ (3) - РІ СЃРёСЃС‚РµРјРµ РїРѕСЏРІР»СЏРµС‚СЃСЏ РЅРѕРІС‹Р№ СЃРІРѕР±РѕРґРЅС‹Р№ Р±Р»РѕРє.
     *releaseBlock = FREE_MARKER;
     size_t len = *(size_t*)&releaseBlock[MARKER_SIZE];
     releaseBlock[len - MARKER_SIZE] = FREE_MARKER;

@@ -1,24 +1,24 @@
 /***************************************************************
-*  Структуры и алгоритмы обработки данных:                     *
-*  объектно-ориентированный подход и реализация на C++         *
-*      Глава 6. Алгоритмы обработки сетевой информации         *
-*          6.1. Обходы и поиск в графах                        *
+*  РЎС‚СЂСѓРєС‚СѓСЂС‹ Рё Р°Р»РіРѕСЂРёС‚РјС‹ РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С…:                     *
+*  РѕР±СЉРµРєС‚РЅРѕ-РѕСЂРёРµРЅС‚РёСЂРѕРІР°РЅРЅС‹Р№ РїРѕРґС…РѕРґ Рё СЂРµР°Р»РёР·Р°С†РёСЏ РЅР° C++         *
+*      Р“Р»Р°РІР° 6. РђР»РіРѕСЂРёС‚РјС‹ РѕР±СЂР°Р±РѕС‚РєРё СЃРµС‚РµРІРѕР№ РёРЅС„РѕСЂРјР°С†РёРё         *
+*          6.1. РћР±С…РѕРґС‹ Рё РїРѕРёСЃРє РІ РіСЂР°С„Р°С…                        *
 *                                                              *
-*  Автор    : А.Кубенский                                      *
-*  Файл     : set.cpp                                          *
-*  Описание : Реализация класса Set                            *
+*  РђРІС‚РѕСЂ    : Рђ.РљСѓР±РµРЅСЃРєРёР№                                      *
+*  Р¤Р°Р№Р»     : set.cpp                                          *
+*  РћРїРёСЃР°РЅРёРµ : Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° Set                            *
 ***************************************************************/
 
-// стандартная исключительная ситуация:
+// СЃС‚Р°РЅРґР°СЂС‚РЅР°СЏ РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅР°СЏ СЃРёС‚СѓР°С†РёСЏ:
 #include <stdexcept>
 
 #include "set.h"
 
 using namespace std;
 
-// Конструктор
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 Set::Set(int min, int max) {
-  // обеспечиваем min < max
+  // РѕР±РµСЃРїРµС‡РёРІР°РµРј min < max
   if (min > max) {
     minElem = max;
     maxElem = min;
@@ -26,16 +26,16 @@ Set::Set(int min, int max) {
     minElem = min;
     maxElem = max;
   }
-  int num = maxElem - minElem + 1;     // количество битов в шкале
-  numWords = (num + 15) >> 4;          // количество слов (WORDs)
+  int num = maxElem - minElem + 1;     // РєРѕР»РёС‡РµСЃС‚РІРѕ Р±РёС‚РѕРІ РІ С€РєР°Р»Рµ
+  numWords = (num + 15) >> 4;          // РєРѕР»РёС‡РµСЃС‚РІРѕ СЃР»РѕРІ (WORDs)
   elems = new WORD[numWords];
-  // Обнуление шкалы:
+  // РћР±РЅСѓР»РµРЅРёРµ С€РєР°Р»С‹:
   for (int i = 0; i < numWords; i++) {
     elems[i] = 0;
   }
 }
 
-// Конструктор копирования
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 Set::Set(const Set & s) {
   minElem = s.minElem;
   maxElem = s.maxElem;
@@ -45,25 +45,25 @@ Set::Set(const Set & s) {
   }
 }
 
-// Деструктор
+// Р”РµСЃС‚СЂСѓРєС‚РѕСЂ
 Set::~Set() {
   delete[] elems;
 }
 
-// Функция проверки принадлежности элемента множеству
+// Р¤СѓРЅРєС†РёСЏ РїСЂРѕРІРµСЂРєРё РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё СЌР»РµРјРµРЅС‚Р° РјРЅРѕР¶РµСЃС‚РІСѓ
 bool Set::has(int n) const {
   if (n > maxElem || n < minElem)
-    return false;    // элемент выходит за границы множества
-  // "Адрес" элемента:
+    return false;    // СЌР»РµРјРµРЅС‚ РІС‹С…РѕРґРёС‚ Р·Р° РіСЂР°РЅРёС†С‹ РјРЅРѕР¶РµСЃС‚РІР°
+  // "РђРґСЂРµСЃ" СЌР»РµРјРµРЅС‚Р°:
   int word = (n - minElem) >> 4;
   int bit = (n - minElem) & 15;
   return (elems[word] & (1 << bit)) != 0;
 }
 
-// Добавление элемента в множество
+// Р”РѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° РІ РјРЅРѕР¶РµСЃС‚РІРѕ
 Set & Set::operator |= (int n) {
   if (n <= maxElem && n >= minElem) {
-    // "Адрес" элемента:
+    // "РђРґСЂРµСЃ" СЌР»РµРјРµРЅС‚Р°:
     int word = (n - minElem) >> 4;
     int bit = (n - minElem) & 15;
     elems[word] |= (1 << bit);
@@ -73,15 +73,15 @@ Set & Set::operator |= (int n) {
   return *this;
 }
 
-// Добавление целых из заданного диапазона
+// Р”РѕР±Р°РІР»РµРЅРёРµ С†РµР»С‹С… РёР· Р·Р°РґР°РЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°
 Set & Set::addScale(int from, int to) {
   if (from < minElem || to > maxElem) {
     throw out_of_range("Cannot add an element: it is out of range");
   } else if (from <= to) {
-    // "Адрес" первого элемента
+    // "РђРґСЂРµСЃ" РїРµСЂРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
     int wordFrom = (from - minElem) >> 4;
     int bitFrom = (from - minElem) & 15;
-    // "Адрес" последнего элемента
+    // "РђРґСЂРµСЃ" РїРѕСЃР»РµРґРЅРµРіРѕ СЌР»РµРјРµРЅС‚Р°
     int wordTo = (to - minElem) >> 4;
     int bitTo = (to - minElem) & 15;
     for (int i = wordFrom + 1; i < wordTo; i++) {
@@ -97,15 +97,15 @@ Set & Set::addScale(int from, int to) {
   return *this;
 }
 
-// Удаление целых из заданного диапазона
+// РЈРґР°Р»РµРЅРёРµ С†РµР»С‹С… РёР· Р·Р°РґР°РЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°
 Set & Set::remScale(int from, int to) {
   if (from < minElem || to > maxElem) {
     throw out_of_range("Cannot add an element: it is out of range");
   } else if (from <= to) {
-    // "Адрес" первого элемента
+    // "РђРґСЂРµСЃ" РїРµСЂРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
     int wordFrom = (from - minElem) >> 4;
     int bitFrom = (from - minElem) & 15;
-    // "Адрес" последнего элемента
+    // "РђРґСЂРµСЃ" РїРѕСЃР»РµРґРЅРµРіРѕ СЌР»РµРјРµРЅС‚Р°
     int wordTo = (to - minElem) >> 4;
     int bitTo = (to - minElem) & 15;
     for (int i = wordFrom + 1; i < wordTo; i++) {
@@ -121,7 +121,7 @@ Set & Set::remScale(int from, int to) {
   return *this;
 }
 
-// Добавление множества к множеству (объединение множеств)
+// Р”РѕР±Р°РІР»РµРЅРёРµ РјРЅРѕР¶РµСЃС‚РІР° Рє РјРЅРѕР¶РµСЃС‚РІСѓ (РѕР±СЉРµРґРёРЅРµРЅРёРµ РјРЅРѕР¶РµСЃС‚РІ)
 Set & Set::operator |= (const Set & other) {
   if (other.minElem != minElem || other.maxElem != maxElem) {
     throw out_of_range("Sets incomparable");
@@ -132,7 +132,7 @@ Set & Set::operator |= (const Set & other) {
   return *this;
 }
 
-// Пересечение множеств
+// РџРµСЂРµСЃРµС‡РµРЅРёРµ РјРЅРѕР¶РµСЃС‚РІ
 Set & Set::operator &= (const Set & other) {
   if (other.minElem != minElem || other.maxElem != maxElem) {
     throw out_of_range("Sets incomparable");
@@ -143,10 +143,10 @@ Set & Set::operator &= (const Set & other) {
   return *this;
 }
 
-// Удаление элемента из множества
+// РЈРґР°Р»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° РёР· РјРЅРѕР¶РµСЃС‚РІР°
 Set & Set::operator -= (int n) {
   if (n <= maxElem && n >= minElem) {
-    // "Адрес" элемента:
+    // "РђРґСЂРµСЃ" СЌР»РµРјРµРЅС‚Р°:
     int word = (n - minElem) >> 4;
     int bit = (n - minElem) & 15;
     elems[word] &= ~(1 << bit);
@@ -154,7 +154,7 @@ Set & Set::operator -= (int n) {
   return *this;
 }
 
-// Удаление множества из множества (разность множеств)
+// РЈРґР°Р»РµРЅРёРµ РјРЅРѕР¶РµСЃС‚РІР° РёР· РјРЅРѕР¶РµСЃС‚РІР° (СЂР°Р·РЅРѕСЃС‚СЊ РјРЅРѕР¶РµСЃС‚РІ)
 Set & Set::operator -= (const Set & other) {
   if (other.minElem != minElem || other.maxElem != maxElem) {
     throw out_of_range("Sets incomparable");
@@ -165,7 +165,7 @@ Set & Set::operator -= (const Set & other) {
   return *this;
 }
 
-// Инверсия (нахождение дополнения) множества
+// РРЅРІРµСЂСЃРёСЏ (РЅР°С…РѕР¶РґРµРЅРёРµ РґРѕРїРѕР»РЅРµРЅРёСЏ) РјРЅРѕР¶РµСЃС‚РІР°
 Set & Set::inverse() {
   for (int i = 0;  i < numWords;  i++) {
     elems[i] = ~elems[i];
@@ -173,7 +173,7 @@ Set & Set::inverse() {
   return *this;
 }
 
-// Подсчет числа элементов множества
+// РџРѕРґСЃС‡РµС‚ С‡РёСЃР»Р° СЌР»РµРјРµРЅС‚РѕРІ РјРЅРѕР¶РµСЃС‚РІР°
 int Set::card() const {
   int c = 0;
   for (int i = 0;  i < numWords;  i++) {
@@ -186,7 +186,7 @@ int Set::card() const {
   return c;
 }
 
-// Проверка пустоты множества
+// РџСЂРѕРІРµСЂРєР° РїСѓСЃС‚РѕС‚С‹ РјРЅРѕР¶РµСЃС‚РІР°
 bool Set::empty() const {
   for (int i = 0;  i < numWords;  i++) {
     if (elems[i]) return false;
@@ -206,25 +206,25 @@ Iterator<int> & Set::SetIterator::operator ++() {
   return *this;
 }
 
-// Операции над множествами, реализованные в виде независимых
-// операторов (вне определения класса)
+// РћРїРµСЂР°С†РёРё РЅР°Рґ РјРЅРѕР¶РµСЃС‚РІР°РјРё, СЂРµР°Р»РёР·РѕРІР°РЅРЅС‹Рµ РІ РІРёРґРµ РЅРµР·Р°РІРёСЃРёРјС‹С…
+// РѕРїРµСЂР°С‚РѕСЂРѕРІ (РІРЅРµ РѕРїСЂРµРґРµР»РµРЅРёСЏ РєР»Р°СЃСЃР°)
 
-// Объединение множеств
+// РћР±СЉРµРґРёРЅРµРЅРёРµ РјРЅРѕР¶РµСЃС‚РІ
 const Set & operator | (const Set & s1, const Set & s2) {
   return Set(s1) |= s2;
 }
 
-// Пересечение множеств
+// РџРµСЂРµСЃРµС‡РµРЅРёРµ РјРЅРѕР¶РµСЃС‚РІ
 const Set & operator & (const Set & s1, const Set & s2) {
   return Set(s1) &= s2;
 }
 
-// Разность множеств
+// Р Р°Р·РЅРѕСЃС‚СЊ РјРЅРѕР¶РµСЃС‚РІ
 const Set & operator - (const Set & s1, const Set & s2) {
   return Set(s1) -= s2;
 }
 
-// Дополнение множества
+// Р”РѕРїРѕР»РЅРµРЅРёРµ РјРЅРѕР¶РµСЃС‚РІР°
 const Set & operator - (const Set & s) {
   return Set(s).inverse();
 }
